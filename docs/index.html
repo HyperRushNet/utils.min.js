@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="utils.js – Kleine, snelle en veilige vanilla JavaScript helpers">
+    <link rel="icon" href="https://www.svgrepo.com/show/303206/javascript-logo.svg">
+    <title>utils.js • Documentatie</title>
+
+    <!-- Prism.js Tomorrow Night Theme -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            --bg: #0d0d0d;
+            --text: #eee;
+            --accent: #d4a1a1;
+            --border: #333;
+            --sidebar-w: 280px;
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Consolas, Monaco, 'Courier New', monospace;
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-w);
+            height: 100vh;
+            background: #111;
+            border-right: 1px solid var(--border);
+            padding: 40px 24px 120px;
+            overflow-y: auto;
+            z-index: 100;
+            transition: left .3s;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent) transparent;
+        }
+        #sidebar::-webkit-scrollbar { width: 6px; background: transparent; }
+        #sidebar::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+        #sidebar::-webkit-scrollbar-thumb:hover { background: #e6b8b8; }
+        #sidebar h1 {
+            font-size: 1.55rem;
+            margin: 0 0 24px;
+            color: #fff;
+            text-align: center;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        #search-wrapper { margin: 20px 0 30px; }
+        #search-input {
+            width: 100%;
+            padding: 13px 16px;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 10px;
+            color: white;
+            font-size: 15px;
+            outline: none;
+            transition: all .2s;
+        }
+        #search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(212, 161, 161, 0.2);
+        }
+        #search-input::placeholder { color: #888; }
+        #nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #nav-list a {
+            display: block;
+            color: #bbb;
+            text-decoration: none;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+            font-size: 15px;
+            transition: all .25s;
+            position: relative;
+        }
+        #nav-list a:hover {
+            color: #fff;
+            background: rgba(212, 161, 161, .15);
+            transform: translateX(6px);
+        }
+        #nav-list a.active {
+            color: #fff;
+            background: rgba(212, 161, 161, .25);
+            font-weight: 600;
+        }
+        #nav-list a.active::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 70%;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+        #nav-list a.dimmed { opacity: 0.25; pointer-events: none; }
+        .main {
+            margin-left: var(--sidebar-w);
+            min-height: 100vh;
+            padding: 40px 20px 120px;
+            display: flex;
+            justify-content: center;
+        }
+        .container { width: 100%; max-width: 860px; }
+        h2 {
+            margin: 80px 0 24px;
+            font-size: 1.8rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+            color: #fff;
+            scroll-margin-top: 120px;
+        }
+        pre {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #333;
+            overflow-x: auto;
+            margin: 20px 0;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+        }
+        pre code { font-size: 15.8px; line-height: 1.65; }
+        .divider {
+            margin: 100px 0 60px;
+            border: none;
+            border-top: 3px solid var(--accent);
+            opacity: 0.6;
+        }
+        .other-sections h2 {
+            margin-top: 70px;
+            opacity: 0.7;
+            font-size: 1.5rem;
+        }
+        #menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1100;
+            background: rgba(30,30,30,.95);
+            border: none;
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            cursor: pointer;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 6px 20px rgba(0,0,0,.5);
+            transition: all .3s;
+        }
+        #menu-toggle span {
+            width: 24px;
+            height: 2.5px;
+            background: #fff;
+            border-radius: 2px;
+            transition: all .3s;
+        }
+        #menu-toggle.active span:nth-child(1) { transform: rotate(45deg) translate(7px, 7px); }
+        #menu-toggle.active span:nth-child(2) { opacity: 0; }
+        #menu-toggle.active span:nth-child(3) { transform: rotate(-45deg) translate(7px, -7px); }
+        @media (max-width: 1024px) { :root { --sidebar-w: 250px; } }
+        @media (max-width: 860px) {
+            #menu-toggle { display: flex; }
+            #sidebar { left: -100%; width: 300px; box-shadow: 10px 0 40px rgba(0,0,0,.7); }
+            #sidebar.active { left: 0; }
+            .main { margin-left: 0; }
+        }
+        @media (max-width: 600px) {
+            .main { padding: 20px 15px 160px; }
+            h2 { margin: 70px 0 20px; font-size: 1.65rem; }
+        }
+    </style>
+</head>
+<body>
+<button id="menu-toggle" aria-label="Toggle Menu">
+    <span></span><span></span><span></span>
+</button>
+
+<div id="sidebar">
+    <h1>utils.min.js</h1>
+    <div id="search-wrapper">
+        <input type="text" id="search-input" placeholder="Zoek modules... (Ctrl+F)">
+    </div>
+    <nav>
+        <ul id="nav-list"></ul>
+    </nav>
+</div>
+
+<div class="main">
+    <div class="container">
+        <div id="content"></div>
+    </div>
+</div>
+
+<!-- Prism.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const nav = document.getElementById("nav-list");
+        const content = document.getElementById("content");
+        const searchInput = document.getElementById("search-input");
+
+        const sectionsData = [
+            {
+                title: "Introduction",
+                code:`// utils.min.js
+// Tiny (~2.5 KB), fast, zero-dependency vanilla JS utility library
+// All helpers are namespaced under a single 'utils' object → no conflicts
+// Works as ES module or global script (<script> tag)
+
+// Import (module)
+// import utils from './utils.min.js';
+
+// Global (script tag)
+// \<script src="utils.min.js"\>\</script\> → window.utils`
+},
+{
+title: "utils.storage",
+code: `// Safe localStorage wrapper with automatic JSON handling and defaults
+
+const theme = utils.storage.get('theme', 'dark');     // returns value or default
+utils.storage.set('user', { name: 'Alice', role: 'admin' });
+utils.storage.remove('tempData');
+utils.storage.clear();                               // clears entire localStorage (use carefully)`
+},
+{
+title: "utils.geo.getCurrent()",
+code: `// Fully abstracted Geolocation API (Promise-based)
+
+try {
+const position = await utils.geo.getCurrent();
+/*
+{
+lat: 52.370216,      // latitude
+lng: 4.895168,       // longitude
+accuracy: 10         // accuracy in meters
+}
+*/
+console.log(position);
+} catch (err) {
+console.error(err.message); // Clear error messages (permission, timeout, etc.)
+}`
+},
+{
+title: "utils.dom.createElement()",
+code: `// Minimal, safe DOM element creation with convenient options
+
+const button = utils.dom.createElement('button', {
+text: 'Submit',
+class: ['btn', 'btn-primary'],
+attrs: { type: 'submit', id: 'save-btn' },
+dataset: { action: 'save' },
+on: {
+click: () => console.log('Clicked!'),
+mouseenter: () => button.style.opacity = 0.8
+}
+});
+
+document.body.appendChild(button);`
+},
+{
+title: "utils.perf.measure()",
+code: `// Measure execution time of sync or async functions (returns ms)
+
+const syncTime = utils.perf.measure(() => {
+for (let i = 0; i < 1e6; i++) {} // heavy loop
+});
+
+const asyncTime = await utils.perf.measure(async () => {
+await fetch('/api/data');
+// process response...
+});
+
+console.log('Async took:', asyncTime, 'ms');`
+},
+{
+title: "utils.perf.debounce()",
+code: `// Debounce: delays invocation until after wait time has elapsed
+
+const search = utils.perf.debounce(async (query) => {
+const res = await fetch(\`/search?q=\${query}\`);
+const data = await res.json();
+// update UI
+}, 400);
+
+input.addEventListener('input', e => search(e.target.value));`
+},
+{
+title: "utils.perf.throttle()",
+code: `// Throttle: limits execution to once per time window
+
+const logScroll = utils.perf.throttle(() => {
+console.log('Scroll Y:', window.scrollY);
+}, 200);
+
+window.addEventListener('scroll', logScroll);`
+},
+{
+title: "utils.id.create()",
+code: `// Generate unique, collision-safe string IDs (even on rapid calls)
+
+utils.id.create();               // "id-1700000000000-0-abc12"
+utils.id.create('user');         // "user-1700000000000-1-def34"
+utils.id.create('modal');        // "modal-1700000000000-0-ghi56"
+
+// Perfect for temporary elements, logs, or client-side identifiers`
+},
+            {
+                title: "The Lib Code",
+                code: "https://cdn.jsdelivr.net/gh/HyperRushNet/utils.min.js@main/index.html"
+            }
+];
+
+        const sections = [];
+        const links = [];
+
+        sectionsData.forEach(sec => {
+            const id = sec.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+            const h2 = document.createElement("h2");
+            h2.id = id;
+            h2.textContent = sec.title;
+
+            const pre = document.createElement("pre");
+            const code = document.createElement("code");
+            code.className = "language-javascript";
+            code.textContent = sec.code;
+            pre.appendChild(code);
+
+            const wrapper = document.createElement("div");
+            wrapper.className = "section";
+            wrapper.appendChild(h2);
+            wrapper.appendChild(pre);
+
+            const link = document.createElement("a");
+            link.href = "javascript:void(0)";
+            link.textContent = sec.title;
+            link.dataset.target = id;
+
+            nav.appendChild(link);
+            sections.push({ wrapper, h2, id });
+            links.push(link);
+        });
+
+        function renderAll() {
+            content.innerHTML = "";
+            sections.forEach(s => content.appendChild(s.wrapper));
+            links.forEach(l => l.classList.remove("dimmed"));
+            Prism.highlightAllUnder(content);
+        }
+
+        function renderSearch(matches) {
+            content.innerHTML = "";
+            if (!matches.length) {
+                content.innerHTML = "<h2 style='text-align:center;opacity:0.7;margin-top:100px'>Geen secties gevonden</h2>";
+                links.forEach(l => l.classList.add("dimmed"));
+                return;
+            }
+            matches.forEach(s => content.appendChild(s.wrapper));
+
+            if (matches.length < sections.length) {
+                const hr = Object.assign(document.createElement("hr"), { className: "divider" });
+                const title = Object.assign(document.createElement("h2"), { textContent: "Overige secties" });
+                const container = document.createElement("div");
+                container.className = "other-sections";
+                sections.forEach(s => !matches.includes(s) && container.appendChild(s.wrapper.cloneNode(true)));
+                content.appendChild(hr);
+                content.appendChild(title);
+                content.appendChild(container);
+            }
+
+            links.forEach(link => {
+                const active = matches.some(m => m.id === link.dataset.target);
+                link.classList.toggle("dimmed", !active);
+            });
+
+            Prism.highlightAllUnder(content);
+        }
+
+        function updateActiveSection() {
+            let best = null;
+            let closest = Infinity;
+            sections.forEach(s => {
+                const rect = s.h2.getBoundingClientRect();
+                const distance = Math.abs(rect.top - 140);
+                if (rect.top <= 320 && distance < closest) {
+                    closest = distance;
+                    best = s;
+                }
+            });
+            if (!best) return;
+            links.forEach(link => {
+                link.classList.toggle("active", link.dataset.target === best.id);
+            });
+        }
+
+        links.forEach(link => {
+            link.addEventListener("click", () => {
+                const target = document.getElementById(link.dataset.target);
+                window.scrollTo({ top: target.offsetTop - 110, behavior: "smooth" });
+                if (window.innerWidth <= 860) {
+                    sidebar.classList.remove("active");
+                    document.getElementById("menu-toggle").classList.remove("active");
+                }
+            });
+        });
+
+        document.getElementById("menu-toggle").addEventListener("click", () => {
+            document.getElementById("sidebar").classList.toggle("active");
+            document.getElementById("menu-toggle").classList.toggle("active");
+        });
+
+        searchInput.addEventListener("input", () => {
+            const query = searchInput.value.trim().toLowerCase();
+            if (!query) return renderAll();
+            const matches = sections.filter(s => s.h2.textContent.toLowerCase().includes(query));
+            renderSearch(matches);
+            if (matches.length) window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+        document.addEventListener("keydown", e => {
+            if (e.key === "f" && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                searchInput.focus();
+                searchInput.select();
+            }
+        });
+
+        window.addEventListener("scroll", updateActiveSection);
+
+        renderAll();
+        updateActiveSection();
+    });
+</script>
+</body>
+</html>
