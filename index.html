@@ -220,107 +220,83 @@
         const searchInput = document.getElementById("search-input");
 
         const sectionsData = [
-            {
-                title: "Introduction",
-                code:`// utils.min.js
-// Tiny (~2.5 KB), fast, zero-dependency vanilla JS utility library
-// All helpers are namespaced under a single 'utils' object → no conflicts
+  {
+    title: "Introduction",
+    code: `// utils.min.js
+// Tiny (~1.8 KB gzipped), fast, zero-dependency vanilla JS utility library
+// Only the essentials: storage, geo, perf tools & unique ID generator
+// Namespaced under a single 'utils' object → no conflicts
+// CDN usage (direct link)
+// <script src="https://hyperrushnet.github.io/utils.min.js/utils.min.js"><\/script>
+// Or unminified for debugging:
+// <script src="https://hyperrushnet.github.io/utils.min.js/utils.js"><\/script>
+// → window.utils
 
-// Global (script tag)
-// \<script src="https://cdn.jsdelivr.net/gh/HyperRushNet/utils.min.js@65f969ab8d39b72913517ddda11b531b745086f5/utils.min.js"\>\</script\> 
-→ window.utils`
-},
-{
-title: "utils.storage",
-code: `// Safe localStorage wrapper with automatic JSON handling and defaults
-
-const theme = utils.storage.get('theme', 'dark');     // returns value or default
+// Documentation & demo: https://hyperrushnet.github.io/utils.min.js/`
+  },
+  {
+    title: "utils.storage",
+    code: `// Safe localStorage wrapper with automatic JSON handling and defaults
+const theme = utils.storage.get('theme', 'dark'); // returns value or default
 utils.storage.set('user', { name: 'Alice', role: 'admin' });
 utils.storage.remove('tempData');
-utils.storage.clear();                               // clears entire localStorage (use carefully)`
-},
-{
-title: "utils.geo.getCurrent()",
-code: `// Fully abstracted Geolocation API (Promise-based)
-
+utils.storage.clear(); // clears entire localStorage (use carefully)`
+  },
+  {
+    title: "utils.geo.getCurrent()",
+    code: `// Fully abstracted Geolocation API (Promise-based)
 try {
-const position = await utils.geo.getCurrent();
-/*
-{
-lat: 52.370216,      // latitude
-lng: 4.895168,       // longitude
-accuracy: 10         // accuracy in meters
-}
-*/
-console.log(position);
+  const position = await utils.geo.getCurrent();
+  /*
+  {
+    lat: 52.370216, // latitude
+    lng: 4.895168, // longitude
+    accuracy: 10 // accuracy in meters
+  }
+  */
+  console.log(position);
 } catch (err) {
-console.error(err.message); // Clear error messages (permission, timeout, etc.)
+  console.error(err.message); // Clear error messages (permission, timeout, etc.)
 }`
-},
-{
-title: "utils.dom.createElement()",
-code: `// Minimal, safe DOM element creation with convenient options
-
-const button = utils.dom.createElement('button', {
-text: 'Submit',
-class: ['btn', 'btn-primary'],
-attrs: { type: 'submit', id: 'save-btn' },
-dataset: { action: 'save' },
-on: {
-click: () => console.log('Clicked!'),
-mouseenter: () => button.style.opacity = 0.8
-}
-});
-
-document.body.appendChild(button);`
-},
-{
-title: "utils.perf.measure()",
-code: `// Measure execution time of sync or async functions (returns ms)
-
+  },
+  {
+    title: "utils.perf.measure()",
+    code: `// Measure execution time of sync or async functions (returns ms)
 const syncTime = utils.perf.measure(() => {
-for (let i = 0; i < 1e6; i++) {} // heavy loop
+  for (let i = 0; i < 1e6; i++) {} // heavy loop
 });
-
 const asyncTime = await utils.perf.measure(async () => {
-await fetch('/api/data');
-// process response...
+  await fetch('/api/data');
+  // process response...
 });
-
 console.log('Async took:', asyncTime, 'ms');`
-},
-{
-title: "utils.perf.debounce()",
-code: `// Debounce: delays invocation until after wait time has elapsed
-
+  },
+  {
+    title: "utils.perf.debounce()",
+    code: `// Debounce: delays invocation until after wait time has elapsed
 const search = utils.perf.debounce(async (query) => {
-const res = await fetch(\`/search?q=\${query}\`);
-const data = await res.json();
-// update UI
+  const res = await fetch(\`/search?q=\${query}\`);
+  const data = await res.json();
+  // update UI
 }, 400);
-
 input.addEventListener('input', e => search(e.target.value));`
-},
-{
-title: "utils.perf.throttle()",
-code: `// Throttle: limits execution to once per time window
-
+  },
+  {
+    title: "utils.perf.throttle()",
+    code: `// Throttle: limits execution to once per time window
 const logScroll = utils.perf.throttle(() => {
-console.log('Scroll Y:', window.scrollY);
+  console.log('Scroll Y:', window.scrollY);
 }, 200);
-
 window.addEventListener('scroll', logScroll);`
-},
-{
-title: "utils.id.create()",
-code: `// Generate unique, collision-safe string IDs (even on rapid calls)
-
-utils.id.create();               // "id-1700000000000-0-abc12"
-utils.id.create('user');         // "user-1700000000000-1-def34"
-utils.id.create('modal');        // "modal-1700000000000-0-ghi56"
-
+  },
+  {
+    title: "utils.id.create()",
+    code: `// Generate unique, collision-safe string IDs (even on rapid calls)
+utils.id.create();         // "id-1700000000000-0-abc12"
+utils.id.create('user');   // "user-1700000000000-1-def34"
+utils.id.create('modal');  // "modal-1700000000000-0-ghi56"
 // Perfect for temporary elements, logs, or client-side identifiers`
-}
+  }
 ];
 
         const sections = [];
